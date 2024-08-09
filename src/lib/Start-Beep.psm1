@@ -30,6 +30,7 @@ Function Start-Beep() {
 
 function Read-Glossary() {
     [CmdletBinding()]
+    [OutputType([Hashtable])]
     param (
         $CSVFilePath = "$PSScriptRoot\..\notes-glossary.csv"
     )
