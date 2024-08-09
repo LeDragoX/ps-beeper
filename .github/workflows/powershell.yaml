@@ -1,0 +1,43 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# https://github.com/microsoft/psscriptanalyzer-action
+# For more information on PSScriptAnalyzer in general, see
+# https://github.com/PowerShell/PSScriptAnalyzer
+# Rules at: https://github.com/PowerShell/PSScriptAnalyzer/tree/master/docs/Rules
+
+name: PSScriptAnalyzer
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run PSScriptAnalyzer
+        uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f
+        with:
+          # The below set up runs PSScriptAnalyzer to your entire repository and runs some basic security rules.
+          path: .\
+          recurse: true
+          # Exclude rules that will not be worked on / are invalid
+          # Command: invoke-scriptanalyzer . -recurse -excludeRule: "PSAvoidUsingInvokeExpression", "PSAvoidUsingWriteHost", "PSUseShouldProcessForStateChangingFunctions"
+          excludeRule: '"PSAvoidUsingInvokeExpression", "PSAvoidUsingWriteHost", "PSUseShouldProcessForStateChangingFunctions"'
+          output: results.sarif
+
+      # Upload the SARIF file generated in the previous step
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
