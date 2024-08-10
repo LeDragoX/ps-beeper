@@ -15,7 +15,7 @@ function Read-Notes() {
             $NoteOctave = $Note -replace '[A-Z]' -replace '#'
             $FilteredNotes += "$NoteName$NoteOctave "
         } ElseIf ($Note.Length -gt 3) {
-            $MultipleNotes = $Note -split '([^0-9]{1}[0-9])'
+            $MultipleNotes = $Note -split '([^0-9]{1}#?[0-9])'
             $MultipleNotes = $MultipleNotes | Where-Object { $_.Trim() -match "\S" }
             $FilteredNotes += "$MultipleNotes "
         }
