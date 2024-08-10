@@ -1,808 +1,812 @@
-Import-Module "$PSScriptRoot\..\lib\Start-Beep.psm1" -Function Read-Glossary, Start-Beep -PassThru
-Import-Module "$PSScriptRoot\..\lib\Translate-ToFrequency.psm1" -PassThru
+Import-Module "$PSScriptRoot\..\lib\Convert-ToFrequency.psm1" -Function Convert-ToFrequency -PassThru -Force
+Import-Module "$PSScriptRoot\..\lib\Read-Glossary.psm1" -Function Read-Glossary -PassThru -Force
+Import-Module "$PSScriptRoot\..\lib\Start-Beep.psm1" -Function Start-Beep -PassThru -Force
 
-$GlossaryHash = Read-Glossary -CSVFilePath "$PSScriptRoot\..\notes-glossary.csv"
-$TestTime = 150
+$Delay = 0
+$GlossaryHash = Read-Glossary
+$OutputFile = "$(Split-Path "$PSCommandPath" -Leaf)-frequency.ps1"
+$TestTime = 120
 
-Function Translate-Megalovania() {
+function Convert-Megalovania() {
     $Notes = @"
 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 C4 C4 D5 A4 G#4 G4 F4 D4 F4 G4 B3 B3 D5 A4 G#4 G4 F4 D4 F4 G4 A#3 A#3 D5 A4 G#4 G4 F4 D4 F4 G4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 C4 C4 D5 A4 G#4 G4 F4 D4 F4 G4 B3 B3 D5 A4 G#4 G4 F4 D4 F4 G4 A#3 A#3 D5 A4 G#4 G4 F4 D4 F4 G4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 C4 C4 D5 A4 G#4 G4 F4 D4 F4 G4 B3 B3 D5 A4 G#4 G4 F4 D4 F4 G4 A#3 A#3 D5 A4 G#4 G4 F4 D4 F4 G4 D5 D5 D6 A5 G#5 G5 F5 D5 F5 G5 C5 C5 D6 A5 G#5 G5 F5 D5 F5 G5 B4 B4 D6 A5 G#5 G5 F5 D5 F5 G5 A#4 A#4 D6 A5 G#5 G5 F5 D5 F5 G5 D5 D5 D6 A5 G#5 G5 F5 D5 F5 G5 C5 C5 D6 A5 G#5 G5 F5 D5 F5 G5 B4 B4 D6 A5 G#5 G5 F5 D5 F5 G5 A#4 A#4 D6 A5 G#5 G5 F5 D5 F5 G5 D5 D5 D6 A5 G#5 G5 F5 D5 F5 G5 C5 C5 D6 A5 G#5 G5 F5 D5 F5 G5 B4 B4 D6 A5 G#5 G5 F5 D5 F5 G5 A#4 A#4 D6 A5 G#5 G5 F5 D5 F5 G5 F5 F5 F5 F5 F5 D5 D5 F5 F5 F5 G5 G#5 G5 F5 D5 F5 G5 F5 F5 F5 G5 G#5 A5 C6 A5 D6 D6 D6 A5 D6 C6 A5 A5 A5 A5 A5 G5 G5 A5 A5 A5 A5 G5 A5 D6 A5 G5 D6 A5 G5 F5 C6 G5 F5 E5 A#4 C5 D5 F5 C6 F5 D5 F5 G5 G#5 G5 F5 D5 G#5 G5 F5 D5 F5 G5 G#5 A5 C6 A5 G#5 G5 F5 D5 E5 F5 G5 A5 C6 C#6 G#5 G#5 G5 F5 G5 F4 G4 A4 F5 E5 D5 E5 F5 G5 E5 A5 A5 G#5 G5 F#5 F5 E5 D#5 D5 C#5 D#5 F5 D5 F5 G5 G#5 G5 F5 D5 G#5 G5 F5 D5 F5 G5 G#5 A5 C6 A5 G#5 G5 F5 D5 E5 F5 G5 A5 C6 C#6 G#5 G#5 G5 F5 G5 F4 G4 A4 F5 E5 D5 E5 F5 G5 E5 A5 A5 G#5 G5 F#5 F5 E5 D#5 D5 C#5 D#5 F5 D5 F5 G5 G#5 G5 F5 D5 G#5 G5 F5 D5 F5 G5 G#5 A5 C6 A5 G#5 G5 F5 D5 E5 F5 G5 A5 C6 C#6 G#5 G#5 G5 F5 G5 F4 G4 A4 F5 E5 D5 E5 F5 G5 E5 A5 A5 G#5 G5 F#5 F5 E5 D#5 D5 C#5 D#5 A#3 F4 E4 D4 F4 A#3 F4 E4 D4 F4 A#3 F4 E4 D4 F4 A#3 F4 E4 D4 D4 C#4 C4 B3 A#3 A3 G#3 G3 F#3 F3 E3 D3 D3 D3 D4 A3 G#3 G3 F3 D3 F3 G3 C3 C3 D4 A3 G#3 G3 F3 D3 F3 G3 B2 B2 D4 A3 G#3 G3 F3 D3 F3 G3 A#2 A#2 D4 A3 G#3 G3 F3 D3 F3 G3 D3 D3 D4 A3 G#3 G3 F3 D3 F3 G3 C3 C3 D4 A3 G#3 G3 F3 D3 F3 G3 D5 F5 E5 C5 E5 D5 G4 A4 C5 F5 E5 C5 E5 D5 G4 A4 C5 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 D4 D4 D4 D4 C#4 C#4 C#4 C#4 C#4 C4 C4 C4 C4 B3 B3 B3 B3 B3 B3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 D4 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 D4 D4 D4 D4 C#4 C#4 C#4 C#4 C#4 C4 C4 C4 C4 B3 B3 B3 B3 B3 B3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 A#3 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 A#3 A#3 D5 A4 G#4 G4 F4 D4 F4 G4 C4 C4 D5 A4 G#4 G4 F4 D4 F4 G4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 D4 D4 D5 A4 G#4 G4 F4 D4 F4 G4 A#3 A#3 D5 A4 G#4 G4 F4 D4 F4 G4 C4 C4 D5 A4 G#4 G4 F4 D4 F4 G4
 "@
 
-    Translate-ToFrequency -Glossary $GlossaryHash -N "$Notes" -D $TestTime -O "$PSScriptRoot\megalovania-frequency.ps1" -PCBeeperMode
+    Convert-ToFrequency -Glossary $GlossaryHash -N "$Notes" -D $TestTime -O "$OutputFile" -PCBeeperMode
 }
 
 
 function Play-Megalovania() {
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B2" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B2" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#2" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#2" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime
-    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#6" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D#5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B2" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B2" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#2" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#2" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "E5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "B3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A#3" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "C4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D5" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "A4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G#4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "D4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "F4" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "G4" -D $TestTime -Wait
 }
 
-Translate-Megalovania
+Clear-Host
+Convert-Megalovania
 Play-Megalovania

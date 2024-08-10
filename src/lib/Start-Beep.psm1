@@ -1,4 +1,4 @@
-Function Start-Beep() {
+function Start-Beep() {
     [CmdletBinding()]
     param (
         # In Hz
@@ -12,45 +12,32 @@ Function Start-Beep() {
         [Alias("G")]
         [hashtable] $Glossary,
         [Alias("N")]
-        [String] $Note # C0-C8
+        [String] $Note, # C0-C8
+        [Alias("Dl")]
+        [Int] $Delay = 0,
+        [Switch] $Wait
     )
 
     If ($Frequency -and $Duration) {
-        Write-Host "Note: $Frequency Hz: $Duration`ms"
+        Write-Host "[$($MyInvocation.MyCommand.Name)] Note: $Frequency Hz: $Duration`ms"
         [System.Console]::Beep($Frequency, $Duration);
     }
     If ($Note -and $Duration) {
         $NoteName = $Note -replace '\d'
         $NoteOctave = $Note -replace '\D'
         $Frequency = $Glossary[$NoteName][$NoteOctave]
-        Write-Host "Note: $NoteName$NoteOctave`: $Frequency Hz in $Duration`ms"
+        If ($Delay -eq 0) {
+            Write-Host "[$($MyInvocation.MyCommand.Name)] Note: $NoteName$NoteOctave`: $Frequency`Hz in $Duration`ms"
+        }
         [System.Console]::Beep($Frequency, $Duration);
-    }
-}
 
-function Read-Glossary() {
-    [CmdletBinding()]
-    [OutputType([Hashtable])]
-    param (
-        $CSVFilePath = "$PSScriptRoot\..\notes-glossary.csv"
-    )
-    $Glossary = [hashtable] [ordered]@{}
-
-    $CSVFile = Import-Csv -Path "$CSVFilePath" -Delimiter ";"
-
-    ForEach ($Note in $CSVFile) {
-        If ($Note.Note -notlike "*/*") {
-            Write-Host "==> Note $($Note.Note)$($Note.Length): $($Note.0, $Note.1, $Note.2, $Note.3, $Note.4, $Note.5, $Note.6, $Note.7, $Note.8)"
-            $Glossary[$Note.Note] = @($Note.0, $Note.1, $Note.2, $Note.3, $Note.4, $Note.5, $Note.6, $Note.7, $Note.8)
-        } Else {
-            Write-Host "==> Note $($Note.Note): $($Note.0, $Note.1, $Note.2, $Note.3, $Note.4, $Note.5, $Note.6, $Note.7, $Note.8)"
-            $Glossary[$Note.Note.Split("/")[0]] = @($Note.0, $Note.1, $Note.2, $Note.3, $Note.4, $Note.5, $Note.6, $Note.7, $Note.8)
-            $Glossary[$Note.Note.Split("/")[1]] = @($Note.0, $Note.1, $Note.2, $Note.3, $Note.4, $Note.5, $Note.6, $Note.7, $Note.8)
+        If ($Delay -gt 0) {
+            Write-Host "[$($MyInvocation.MyCommand.Name)] Note: $NoteName$NoteOctave`: $Frequency`Hz in $Duration`ms + $Delay`ms"
+            Start-Sleep -Milliseconds $Delay
+        } ElseIf ($Wait) {
+            Read-Host -Prompt "[$($MyInvocation.MyCommand.Name)] > Press ENTER to continue"
         }
     }
-
-    Write-Host $Glossary.Keys
-    return $Glossary
 }
 
 Export-ModuleMember -Function *

@@ -1,6 +1,7 @@
-Import-Module "$PSScriptRoot\Start-Beep.psm1" -Function Read-Glossary -PassThru -Force
+Import-Module "$PSScriptRoot\Read-Glossary.psm1" -Function Read-Glossary -PassThru -Force
+Import-Module "$PSScriptRoot\Read-Notes.psm1" -Function Read-Notes -PassThru -Force
 
-function Translate-ToFrequency() {
+function Convert-ToFrequency() {
     [CmdletBinding()]
     param(
         [Alias("G")]
@@ -11,13 +12,16 @@ function Translate-ToFrequency() {
         [Alias("D")]
         [Float] $Duration, # 100
         [Alias("O")]
-        [String] $OutputFile = "$PSCommandPath-frequency.ps1",
+        [String] $OutputFile = "-frequency.ps1",
         [Switch] $PCBeeperMode = $False
     )
 
-    $Glossary = Read-Glossary -CSVFilePath "$PSScriptRoot\..\notes-glossary.csv"
-    $Notes = $Notes.Clone().Split(" ")
     $CodeSnippet = ""
+    $Glossary = Read-Glossary -CSVFilePath "$PSScriptRoot\..\notes-glossary.csv"
+    $Notes = Read-Notes -N "$Notes"
+    $Notes = $Notes.Split(" ")
+    $OutputFile = $OutputFile.Replace(".ps1", "")
+    $OutputPath = "$PSScriptRoot\..\music\exported\$OutputFile"
     If ($PCBeeperMode) { $CodePCBeeper = "" }
 
     ForEach ($Note in $Notes) {
@@ -25,18 +29,17 @@ function Translate-ToFrequency() {
             $NoteName = $Note -replace '\d'
             $NoteOctave = $Note -replace '\D'
             $Frequency = $Glossary[$NoteName][$NoteOctave]
-            Write-Host "Note: $NoteName$NoteOctave`: $Frequency Hz in $Duration`ms"
             $CodeSnippet += Write-Output "[System.Console]::Beep($Frequency, $Duration)`n"
             If ($PCBeeperMode) {
                 $CodePCBeeper += Write-Output ".\pc-beeper.exe -f $Frequency -d $Duration`n"
             }
         }
+        Write-Host "[$($MyInvocation.MyCommand.Name)] Note <$NoteName$NoteOctave> $Frequency`Hz in $Duration`ms"
     }
 
-    $OutputFile = $OutputFile.Replace(".ps1", "")
-    $CodeSnippet | Out-File -FilePath "$OutputFile.ps1";
-    $CodePCBeeper | Out-File -FilePath "$OutputFile-pc-beeper.ps1";
-    Write-Host "Done!" -ForegroundColor Cyan
+    $CodeSnippet | Out-File -FilePath "$OutputPath.ps1";
+    $CodePCBeeper | Out-File -FilePath "$OutputPath-pc-beeper.ps1";
+    Write-Host "[$($MyInvocation.MyCommand.Name)] Done!" -ForegroundColor Cyan
 }
 
 Export-ModuleMember -Function *

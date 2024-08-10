@@ -18,10 +18,12 @@ Play other sounds inside the `src\music` folder.
 .\src\music\megalovania.ps1
 ```
 
-## Generated files
+## Generated Files
 
 If you want to input more sounds you can use `.\src\music\megalovania.ps1` as an example, you just need the notes from the music.
 **The script to run with pc-beeper requires it to be on the same folder as the executable file.**
+
+Some of the sounds are not playable, but you can still listen to them inside the `src\music\exported\`.
 
 > [!CAUTION]
 > Also, be careful to not run without ADMIN privileges, as it is required by them, or else you will get a wonderful amount of UAC prompts.
