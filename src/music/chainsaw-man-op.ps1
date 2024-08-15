@@ -39,12 +39,13 @@ G#4 F#4 G#4 A4 B4 C#5 Eb5 C5 G#4 E5 Eb5
 $NotesChorus = @"
 G#5 C#5 Eb5 E5 F#5 B4 E5 Eb5 C#5 C5 A4 A#4 G#4 G4 C#5
 G#4 F#4 E4 F#4 E4 F#4 G#4 A4 B4 A4 G#4 F#4 C#5 C5 A4 G#4 E5 Eb5
-G#4 C#4 Eb4 E4 F#4 B3 E4
-Eb4 C#4 C4 A4 G#4 F#4 G#4 F#4 F4 Eb4 E4
-E4 Eb4 B3 C#4 Bb3 C#4 C#4
-E4 Eb4 B3 C#4 Bb3 C#4 C#4
-G#4 G4 G#4 G4 G#4 G4 G#4
-G#4 F#4 E4 F#4 E4 Eb4 B3
+
+G#5 C#5 Eb5 E5 F#5 B4 E5
+Eb5 C#5 C5 A5 G#5 F#5 G#5 F#5 F5 Eb5 E5 E5
+E5 Eb5 B4 C#5 Bb4 C#5 C#5
+E5 Eb5 B4 C#5 Bb4 C#5 C#5
+G#5 G5 G#5 G5 G#5 G5 G#5
+G#5 F#5 E5 F#5 E5 Eb5 B4
 "@
 
 $NotesEnd = @"
