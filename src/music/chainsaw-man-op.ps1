@@ -55,12 +55,14 @@ A4 Bb4 A4 Bb4 A4 A4 A4 A4 A4
 A4 Bb4 A4 Bb4 A4 A4 Bb4 Bb4 B4
 "@
 
+$Notes = "$NotesIntro1 $NotesIntro2 $NotesChorus $NotesEnd"
+
 function Convert-Music() {
-    Convert-ToFrequency -Glossary $GlossaryHash -N "$NotesIntro1 $NotesIntro2 $NotesChorus $NotesEnd" -D 130 -O "$OutputFile" -PCBeeperMode
+    Convert-ToFrequency -Glossary $GlossaryHash -N "$Notes" -D 130 -O "$OutputFile" -PCBeeperMode
 }
 
 function Play-Music() {
-    Start-Beep -Glossary $GlossaryHash -N "$NotesIntro1 $NotesIntro2 $NotesChorus $NotesEnd" -D $TestTime -Wait
+    Start-Beep -Glossary $GlossaryHash -N "$Notes" -D $TestTime -Wait
 }
 
 Clear-Host

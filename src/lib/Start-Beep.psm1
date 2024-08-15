@@ -1,3 +1,5 @@
+Import-Module "$PSScriptRoot\Read-Notes.psm1" -Function Read-Notes -PassThru -Force
+
 function Start-Beep() {
     [CmdletBinding()]
     param (
@@ -20,16 +22,28 @@ function Start-Beep() {
 
     $Note = $Note.Trim()
 
+    # Multiple notes
     If ($Note -like '* *') {
         Write-Host "[$($MyInvocation.MyCommand.Name)] '$Note' contains whitespace!!! Isolating and running..." -ForegroundColor Yellow
-        $Note -split '\s' | ForEach-Object { Start-Beep -G $Glossary -N $_ -D $Duration -Wait }
+
+        $Note -split '\s' | ForEach-Object {
+            If ($_.Length -gt 3) {
+                Write-Host "[$($MyInvocation.MyCommand.Name)] '$_' Unfiltered notes found!!! Isolating and running..." -ForegroundColor Yellow
+                $Notes = Read-Notes -Notes $_
+                Start-Beep -G $Glossary -N $Notes -D $Duration -Wait
+            } Else {
+                Start-Beep -G $Glossary -N $_ -D $Duration -Wait
+            }
+        }
         return
     }
 
+    # Single Note without the Glossary
     If ($Frequency -and $Duration) {
         Write-Host "[$($MyInvocation.MyCommand.Name)] Note Frequency $Frequency`Hz: $Duration`ms"
         [System.Console]::Beep($Frequency, $Duration);
     }
+    # Single Note with a Glossary
     If ($Note -and $Duration) {
         $NoteName = $Note -replace '\d'
         $NoteOctave = $Note -replace '\D'

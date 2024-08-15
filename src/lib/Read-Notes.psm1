@@ -14,19 +14,22 @@ function Read-Notes() {
             $NoteName = $Note -replace '[0-9]'
             $NoteOctave = $Note -replace '[A-Z]' -replace '#'
             $FilteredNotes += "$NoteName$NoteOctave "
+            Write-Host "[$($MyInvocation.MyCommand.Name)] [$($Note.Length)] Note: '$Note' | Detected as '$NoteName$NoteOctave'"
+
         } ElseIf ($Note.Length -gt 3) {
             $MultipleNotes = $Note -split '([^0-9]{1}#?[0-9])'
             $MultipleNotes = $MultipleNotes | Where-Object { $_.Trim() -match "\S" }
             $FilteredNotes += "$MultipleNotes "
+            Write-Host "[$($MyInvocation.MyCommand.Name)] [$($Note.Length)C] Notes: '$Note'"
+            Write-Host "[$($MyInvocation.MyCommand.Name)] [$($MultipleNotes.Length)N] Filter: '$MultipleNotes'"
         }
-        Write-Host "[$($MyInvocation.MyCommand.Name)] [$($Note.Length)] Note(s): '$Note' | Detected as '$NoteName$NoteOctave$MultipleNotes'"
         $NoteName = $null
         $NoteOctave = $null
         $MultipleNotes = $null
     }
 
     $FilteredNotes = $FilteredNotes.Trim()
-    Write-Host "[$($MyInvocation.MyCommand.Name)] Result: '$FilteredNotes'"
+    Write-Host "[$($MyInvocation.MyCommand.Name)] [$($FilteredNotes.Length)] Result: '$FilteredNotes'" -ForegroundColor Green
     return $FilteredNotes
 }
 
