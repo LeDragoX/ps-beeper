@@ -55,7 +55,7 @@ A4 Bb4 A4 Bb4 A4 A4 Bb4 Bb4 B4
 "@
 
 function Convert-Music() {
-    Convert-ToFrequency -Glossary $GlossaryHash -N "$NotesIntro1 $NotesIntro2 $NotesChorus $NotesEnd" -D 120 -O "$OutputFile" -PCBeeperMode
+    Convert-ToFrequency -Glossary $GlossaryHash -N "$NotesIntro1 $NotesIntro2 $NotesChorus $NotesEnd" -D 130 -O "$OutputFile" -PCBeeperMode
 }
 
 function Play-Music() {
